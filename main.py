@@ -205,11 +205,11 @@ def main():
     set_servo_angle(dev, 0)
 
     print("setting to 180")
-    for x in range(0, 201, 3):
+    for x in range(0, 361, 3):
         set_servo_angle(dev, x)
         sleep(0.05)
 
-    for x in range(200, -1, -3):
+    for x in range(360, -1, -3):
         set_servo_angle(dev, x)
         sleep(0.05)
 
