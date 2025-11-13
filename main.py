@@ -181,8 +181,8 @@ SERVO_FREQ = 50
 SERVO_CH = 2
 
 # Servo specs
-MIN_MS = 0.4
-MAX_MS = 2.7
+MIN_MS = 0.5
+MAX_MS = 2.5
 
 def ms_to_val(ms):
     """Convert pulse width in ms to PCA9685 value (0–4095)."""
