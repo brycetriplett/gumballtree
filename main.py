@@ -157,6 +157,7 @@ def main():
     # Sweep from 0 → 360°
     for angle in range(0, 361, 1):  # step size matches 3° precision
         set_angle(dev, angle)
+        time.sleep(1)
 
     # Stop sending signal (optional — depends on servo type)
     # dev.set_pwm(SERVO_CH, 0)
