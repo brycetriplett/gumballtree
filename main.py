@@ -204,9 +204,9 @@ def main():
     print("Setting servo to 0°...")
     set_servo_angle(dev, 0)
 
-    for x in range(0, 361, 3):
-        set_servo_angle(dev, x)
-        sleep(0.1)
+    print("setting to 180")
+    set_servo_angle(dev, 180)
+    set_servo_angle(dev, 0)
 
     print("Servo positioned at 0°.")
 
