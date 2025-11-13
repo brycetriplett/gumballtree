@@ -19,7 +19,7 @@ SERVO_FREQ = 50    # Hz, typical for hobby servos
 
 # Servo channels
 SERVO1_CH = 0
-SERVO2_CH = 1
+SERVO2_CH = 2
 
 # Servo angle limits
 SERVO_MIN_ANGLE = 0
