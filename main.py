@@ -206,7 +206,7 @@ def main():
 
     for x in range(0, 361, 3):
         set_servo_angle(dev, x)
-        sleep(0.5)
+        sleep(0.1)
 
     print("Servo positioned at 0°.")
 
