@@ -160,8 +160,8 @@ def main():
         time.sleep(1)
 
     # Stop sending signal (optional — depends on servo type)
-    # dev.set_pwm(SERVO_CH, 0)
-    # print("Rotation complete. Servo stopped.")
+    dev.set_pwm(SERVO_CH, 0)
+    print("Rotation complete. Servo stopped.")
 
 
 if __name__ == "__main__":
