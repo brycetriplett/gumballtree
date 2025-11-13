@@ -173,6 +173,7 @@ Set 360° positional servo to 0° position on PCA9685.
 """
 
 from pca9685_driver import Device
+from time import sleep
 
 I2C_BUS = 2
 I2C_ADDR = 0x40
@@ -201,7 +202,11 @@ def main():
     dev.set_pwm_frequency(SERVO_FREQ)
 
     print("Setting servo to 0°...")
-    set_servo_angle(dev, 128)
+    set_servo_angle(dev, 0)
+
+    for x in range(0, 361, 3):
+        set_servo_angle(dev, x)
+        sleep(0.5)
 
     print("Servo positioned at 0°.")
 
