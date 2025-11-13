@@ -109,41 +109,60 @@ Servo spec: 0.5–2.5ms pulse @ 50Hz, 0–360° range.
 
 #!/usr/bin/env python3
 """
-Set 360° positional servo to 0° position on PCA9685.
+Spin a 360° servo on PCA9685 once, then stop.
+Servo spec: 0.5–2.5ms pulse @ 50Hz, 0–360° range.
 """
 
 from pca9685_driver import Device
+import time
 
-I2C_BUS = 2
-I2C_ADDR = 0x40
-SERVO_FREQ = 50
-SERVO_CH = 2
+# ------------------------------------------------------------
+# CONFIGURATION
+# ------------------------------------------------------------
+I2C_BUS = 2          # /dev/i2c-2
+I2C_ADDR = 0x40      # PCA9685 default address
+SERVO_FREQ = 50      # Hz
+SERVO_CH = 2         # Channel for 360° servo
 
-# Servo specs
+# Pulse width limits for 360° servo
 MIN_MS = 0.5
 MAX_MS = 2.5
 
+# ------------------------------------------------------------
+# HELPER FUNCTIONS
+# ------------------------------------------------------------
 def ms_to_val(ms):
-    """Convert pulse width in ms to PCA9685 value (0–4095)."""
+    """Convert pulse width (ms) to PCA9685 value (0–4095)."""
     period_ms = 1000.0 / SERVO_FREQ
     return int((ms / period_ms) * 4096)
 
-def set_servo_angle(dev, angle):
-    """Set servo to specific angle (0–360°)."""
+
+def set_angle(dev, angle):
+    """Convert angle (0–360) to pulse and send to servo."""
     angle = max(0, min(angle, 360))
     ms = MIN_MS + (angle / 360.0) * (MAX_MS - MIN_MS)
     val = ms_to_val(ms)
     dev.set_pwm(SERVO_CH, val)
 
+
+# ------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------
 def main():
     print("Initializing PCA9685...")
     dev = Device(I2C_ADDR, I2C_BUS)
     dev.set_pwm_frequency(SERVO_FREQ)
+    print("Starting 360° rotation...")
 
-    print("Setting servo to 0°...")
-    set_servo_angle(dev, 0)
+    # Sweep from 0 → 360°
+    for angle in range(0, 361, 3):  # step size matches 3° precision
+        set_angle(dev, angle)
+        time.sleep(0.05)  # smooth motion (adjust as needed)
 
-    print("Servo positioned at 0°.")
+    # Stop sending signal (optional — depends on servo type)
+    dev.set_pwm(SERVO_CH, 0)
+    print("Rotation complete. Servo stopped.")
+
 
 if __name__ == "__main__":
     main()
