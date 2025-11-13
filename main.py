@@ -155,7 +155,7 @@ def main():
     print("Starting 360° rotation...")
 
     # Sweep from 0 → 360°
-    for angle in range(0, 361, 1):  # step size matches 3° precision
+    for angle in range(0, 361, 3):  # step size matches 3° precision
         set_angle(dev, angle)
         time.sleep(1)
 
