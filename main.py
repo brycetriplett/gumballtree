@@ -182,7 +182,7 @@ SERVO_CH = 2
 
 # Servo specs
 MIN_MS = 0.4
-MAX_MS = 2.6
+MAX_MS = 2.7
 
 def ms_to_val(ms):
     """Convert pulse width in ms to PCA9685 value (0–4095)."""
@@ -207,8 +207,6 @@ def main():
     for x in range(0, 361, 3):
         set_servo_angle(dev, x)
         sleep(0.1)
-
-    set_servo_angle(dev, 0)
 
     print("Servo positioned at 0°.")
 
