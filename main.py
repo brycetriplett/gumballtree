@@ -201,7 +201,7 @@ def main():
     dev.set_pwm_frequency(SERVO_FREQ)
 
     print("Setting servo to 0°...")
-    set_servo_angle(dev, 0)
+    set_servo_angle(dev, 128)
 
     print("Servo positioned at 0°.")
 
