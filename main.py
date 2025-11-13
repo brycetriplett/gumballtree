@@ -155,13 +155,12 @@ def main():
     print("Starting 360° rotation...")
 
     # Sweep from 0 → 360°
-    for angle in range(0, 361, 3):  # step size matches 3° precision
+    for angle in range(0, 361, 1):  # step size matches 3° precision
         set_angle(dev, angle)
-        time.sleep(0.05)  # smooth motion (adjust as needed)
 
     # Stop sending signal (optional — depends on servo type)
-    dev.set_pwm(SERVO_CH, 0)
-    print("Rotation complete. Servo stopped.")
+    # dev.set_pwm(SERVO_CH, 0)
+    # print("Rotation complete. Servo stopped.")
 
 
 if __name__ == "__main__":
