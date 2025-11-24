@@ -1,24 +1,41 @@
 from smartcard.System import readers
 from smartcard.util import toHexString
+from smartcard.Exceptions import CardConnectionException
 
-r = readers()
-reader = [x for x in r if "PICC" in str(x) and "Interface 0" in str(x)][0]
-print("Using:", reader)
+def main():
+    r = readers()
+    if not r:
+        print("No readers detected.")
+        return
 
-conn = reader.createConnection()
-conn.connect()
+    # Use your reader name exactly
+    reader = r[0]
+    print("Using:", reader)
 
-print("Waiting for card...")
+    conn = reader.createConnection()
 
-while True:
+    # Try connection in the only valid NFC mode
     try:
-        apdu = [0xFF, 0xCA, 0x00, 0x00, 0x00]  # Get UID
-        data, sw1, sw2 = conn.transmit(apdu)
+        conn.connect()
+    except CardConnectionException:
+        # Try direct/raw mode — required for some ACR122U clones
+        from smartcard.CardConnection import CardConnection
+        conn.connect(mode=CardConnection.DIRECT)
 
-        if sw1 == 0x90:
-            print("Card detected:", toHexString(data))
-        # loop will continue and print once per tap
+    print("Connected. Waiting for card...")
 
-    except Exception:
-        # no card present
-        pass
+    GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
+
+    while True:
+        try:
+            data, sw1, sw2 = conn.transmit(GET_UID)
+
+            if sw1 == 0x90 and sw2 == 0x00:
+                print("Card UID:", toHexString(data))
+        except Exception:
+            # No card present – ignore
+            pass
+
+
+if __name__ == "__main__":
+    main()
