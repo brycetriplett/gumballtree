@@ -1,12 +1,13 @@
 import nfc
 
 def on_connect(tag):
-    print("Tag detected!")
-    print(tag)
-    return True  # keep connection until removed
+    print("Card detected!")
+    print(f"UID: {tag.identifier.hex()}")
+    return True  # keep connection until card is removed
 
 def main():
-    clf = nfc.ContactlessFrontend('usb')
+    # Use PCSC backend
+    clf = nfc.ContactlessFrontend('pcsc')
     if not clf:
         print("Failed to open reader")
         return
@@ -17,3 +18,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
