@@ -17,17 +17,11 @@ def main():
 
     print("Waiting for a card tap...")
 
+    GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]  # standard ACR122U UID APDU
+
     while True:
         try:
-            # Try to connect; if no card, exception is raised
-            try:
-                conn.connect()
-            except CardConnectionException:
-                time.sleep(0.2)
-                continue
-
-            # APDU command to get UID
-            GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
+            # Try to read UID without calling connect()
             data, sw1, sw2 = conn.transmit(GET_UID)
 
             if sw1 == 0x90 and sw2 == 0x00:
@@ -36,18 +30,17 @@ def main():
                     print("Card detected! UID:", uid)
                     last_uid = uid
 
-            time.sleep(0.2)
-
         except CardConnectionException:
-            # Card removed
+            # No card present
             if last_uid is not None:
                 print("Card removed.")
                 last_uid = None
-            time.sleep(0.2)
 
         except Exception as e:
-            print("Error:", e)
-            time.sleep(0.2)
+            # Ignore other exceptions for now
+            pass
+
+        time.sleep(0.2)
 
 if __name__ == "__main__":
     main()
