@@ -1,46 +1,31 @@
-from smartcard.System import readers
-from smartcard.util import toHexString
-from smartcard.Exceptions import CardConnectionException
+import nfc
 import time
 
+def on_connect(tag):
+    uid = tag.identifier.hex().upper()
+    print("Card detected! UID:", uid)
+    return True  # disconnect after reading
+
 def main():
-    r = readers()
-    if not r:
-        print("No readers detected.")
+    clf = nfc.ContactlessFrontend('usb')
+    if not clf:
+        print("No NFC reader found")
         return
 
-    reader = r[0]  # your single reader
-    print("Using:", reader)
-
-    conn = reader.createConnection()
+    print("Waiting for card tap...")
     last_uid = None
 
-    print("Waiting for a card tap...")
+    try:
+        while True:
+            # Wait for a card tap
+            clf.connect(rdwr={'on-connect': on_connect})
 
-    GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]  # standard ACR122U UID APDU
+            # Small delay to avoid multiple prints for the same tap
+            time.sleep(0.5)
 
-    while True:
-        try:
-            # Try to read UID without calling connect()
-            data, sw1, sw2 = conn.transmit(GET_UID)
-
-            if sw1 == 0x90 and sw2 == 0x00:
-                uid = toHexString(data)
-                if uid != last_uid:
-                    print("Card detected! UID:", uid)
-                    last_uid = uid
-
-        except CardConnectionException:
-            # No card present
-            if last_uid is not None:
-                print("Card removed.")
-                last_uid = None
-
-        except Exception as e:
-            # Ignore other exceptions for now
-            pass
-
-        time.sleep(0.2)
+    except KeyboardInterrupt:
+        print("\nExiting.")
+        clf.close()
 
 if __name__ == "__main__":
     main()
