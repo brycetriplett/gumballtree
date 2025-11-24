@@ -12,7 +12,7 @@ def main():
     while clf is None:
         try:
             print("Trying to open reader...")
-            clf = nfc.ContactlessFrontend('pcsc')
+            clf = nfc.ContactlessFrontend('usb')
         except OSError as e:
             print(f"Reader not ready: {e}. Retrying in 2s...")
             time.sleep(2)
