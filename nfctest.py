@@ -1,6 +1,5 @@
 from smartcard.System import readers
 from smartcard.util import toHexString
-from smartcard.CardConnection import CardConnection
 from smartcard.Exceptions import CardConnectionException
 import time
 
@@ -20,16 +19,19 @@ def main():
 
     while True:
         try:
-            # Try connecting in DIRECT mode (needed for NFC)
-            conn.connect(mode=CardConnection.DIRECT)
+            # Try to connect; if no card, exception is raised
+            try:
+                conn.connect()
+            except CardConnectionException:
+                time.sleep(0.2)
+                continue
 
-            # APDU command to read UID
+            # APDU command to get UID
             GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
             data, sw1, sw2 = conn.transmit(GET_UID)
 
             if sw1 == 0x90 and sw2 == 0x00:
                 uid = toHexString(data)
-                # Only print if new card tapped
                 if uid != last_uid:
                     print("Card detected! UID:", uid)
                     last_uid = uid
@@ -37,14 +39,13 @@ def main():
             time.sleep(0.2)
 
         except CardConnectionException:
-            # No card present — reset state and wait
+            # Card removed
             if last_uid is not None:
                 print("Card removed.")
                 last_uid = None
             time.sleep(0.2)
 
         except Exception as e:
-            # Ignore other exceptions for now
             print("Error:", e)
             time.sleep(0.2)
 
