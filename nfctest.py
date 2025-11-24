@@ -1,43 +1,24 @@
 from smartcard.System import readers
 from smartcard.util import toHexString
-from smartcard.Exceptions import NoCardException
-import time
 
-def main():
-    # Get reader
-    r = readers()[0]
-    print("Using:", r)
-    connection = r.createConnection()
+r = readers()
+reader = [x for x in r if "PICC" in str(x) and "Interface 0" in str(x)][0]
+print("Using:", reader)
 
-    last_uid = None
+conn = reader.createConnection()
+conn.connect()
 
-    while True:
-        try:
-            # Try connecting to see if a card is present
-            connection.connect()
+print("Waiting for card...")
 
-            # APDU command to read UID
-            GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
-            data, sw1, sw2 = connection.transmit(GET_UID)
+while True:
+    try:
+        apdu = [0xFF, 0xCA, 0x00, 0x00, 0x00]  # Get UID
+        data, sw1, sw2 = conn.transmit(apdu)
 
-            if sw1 == 0x90 and sw2 == 0x00:
-                uid = toHexString(data)
+        if sw1 == 0x90:
+            print("Card detected:", toHexString(data))
+        # loop will continue and print once per tap
 
-                # Print only when a new card is tapped
-                if uid != last_uid:
-                    print("Card detected! UID:", uid)
-                    last_uid = uid
-            else:
-                print(f"Error reading UID: {hex(sw1)} {hex(sw2)}")
-
-        except NoCardException:
-            # Card removed → reset state and wait again
-            if last_uid is not None:
-                print("Card removed.")
-                last_uid = None
-
-        # Small delay to keep CPU usage low
-        time.sleep(0.2)
-
-if __name__ == "__main__":
-    main()
+    except Exception:
+        # no card present
+        pass
