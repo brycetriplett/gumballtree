@@ -6,38 +6,27 @@ import time
 
 class NFCObserver(CardObserver):
     def update(self, observable, actions):
-        (added_cards, removed_cards) = actions
+        added_cards, removed_cards = actions
 
         for card in added_cards:
             print("Card detected!")
-
-            connection = card.createConnection()
-
             try:
-                connection.connect(protocol=SCARD_PROTOCOL_T1)
-            except:
-                print("Failed raw connect, trying auto...")
-                try:
-                    connection.connect()
-                except Exception as e:
-                    print("Could not connect to card:", e)
-                    return
-
-            # APDU command to get UID (ACS ACR122U)
-            GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
-
-            try:
+                connection = card.createConnection()
+                connection.connect()  # auto protocol
+                GET_UID = [0xFF, 0xCA, 0x00, 0x00, 0x00]
                 data, sw1, sw2 = connection.transmit(GET_UID)
+                print(f"SW1: {sw1:02X}, SW2: {sw2:02X}")  # DEBUG
                 if sw1 == 0x90 and sw2 == 0x00:
-                    uid = toHexString(data).replace(" ", "")
+                    uid = ''.join(f'{b:02X}' for b in data)
                     print("UID:", uid)
                 else:
-                    print(f"APDU Error: {sw1:02X} {sw2:02X}")
-            except CardConnectionException:
-                print("Error reading card.")
+                    print("Card responded but no UID returned.")
+            except Exception as e:
+                print("Failed to read card:", e)
 
         for card in removed_cards:
             print("Card removed.")
+
 
 def main():
     print("Waiting for cards... (Ctrl+C to exit)")
