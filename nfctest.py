@@ -1,31 +1,19 @@
-import nfc
-import time
+from smartcard.System import readers
+from smartcard.Exceptions import NoCardException
 
-def on_connect(tag):
-    print("Card detected!")
-    print(f"UID: {tag.identifier.hex()}")
-    return True  # keep connection until card is removed
+r = readers()
+if len(r) == 0:
+    print("No readers available")
+    exit()
 
-def main():
-    clf = None
-    # Retry loop for opening the reader
-    while clf is None:
-        try:
-            print("Trying to open reader...")
-            clf = nfc.ContactlessFrontend('usb')
-        except OSError as e:
-            print(f"Reader not ready: {e}. Retrying in 2s...")
-            time.sleep(2)
+reader = r[0]
+print(f"Using reader: {reader}")
 
-    print("Reader is ready. Waiting for a card tap...")
-
-    # Continuous loop for card detection
-    while True:
-        try:
-            clf.connect(rdwr={'on-connect': on_connect})
-        except Exception as e:
-            print(f"Error during connect: {e}")
-            time.sleep(1)  # short delay before retrying
-
-if __name__ == "__main__":
-    main()
+while True:
+    connection = reader.createConnection()
+    try:
+        connection.connect()  # will raise NoCardException if no card
+        atr = connection.getATR()
+        print(f"Card detected! ATR: {atr}")
+    except NoCardException:
+        pass  # just wait
